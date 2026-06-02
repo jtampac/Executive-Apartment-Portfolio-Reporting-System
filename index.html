@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>APEX — Executive Apartment Portfolio Dashboard</title>
+  <meta name="description" content="Automated Excel + Power Query reporting system for multifamily portfolio performance, operational exceptions, and investment analysis." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow-1" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow-2" aria-hidden="true"></div>
+  <div class="bg-noise" aria-hidden="true"></div>
+
+  <!-- NAV -->
+  <header class="nav" id="nav">
+    <div class="nav-inner">
+      <a class="brand" href="#hero">
+        <span class="brand-mark">◇</span>
+        <span class="brand-text">APEX<span class="brand-thin"> Portfolio</span></span>
+      </a>
+      <nav class="nav-links">
+        <a href="#overview">Overview</a>
+        <a href="#performance">Performance</a>
+        <a href="#exceptions">Exceptions</a>
+        <a href="#investment">Investment</a>
+        <a href="#casestudy">Case Study</a>
+        <a href="#workflow">Workflow</a>
+      </nav>
+      <a href="#overview" class="btn btn-ghost nav-cta">Live Demo <span class="pulse"></span></a>
+    </div>
+  </header>
+
+  <!-- 1. HERO + DASHBOARD PREVIEW MOCKUP -->
+  <section class="hero" id="hero">
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <span class="eyebrow reveal"><span class="eyebrow-dot"></span>Business Intelligence · Multifamily Real Estate</span>
+        <h1 class="hero-title reveal">Executive Apartment<br /><span class="grad">Portfolio Dashboard</span></h1>
+        <p class="hero-sub reveal">Automated Excel + Power Query reporting system for portfolio performance, operational exceptions, and investment analysis.</p>
+        <div class="hero-cta reveal">
+          <a href="#overview" class="btn btn-primary">View Dashboard <span class="arr">→</span></a>
+          <a href="#casestudy" class="btn btn-ghost">See Case Study</a>
+        </div>
+        <div class="hero-badges reveal" id="heroBadges"></div>
+      </div>
+
+      <!-- Dashboard preview mockup -->
+      <div class="hero-mock reveal" id="heroMock">
+        <div class="mock-window">
+          <div class="mock-bar">
+            <span class="mock-dot r"></span><span class="mock-dot y"></span><span class="mock-dot g"></span>
+            <span class="mock-url">apex-portfolio · executive view</span>
+            <span class="mock-live"><i></i>Live</span>
+          </div>
+          <div class="mock-body">
+            <div class="mock-side">
+              <span class="mock-logo">◇</span>
+              <span class="mi active"></span><span class="mi"></span><span class="mi"></span><span class="mi"></span>
+            </div>
+            <div class="mock-main">
+              <div class="mock-mini-kpis" id="mockKpis"></div>
+              <div class="mock-chart">
+                <div class="mock-chart-head"><span>Portfolio NOI</span><span class="mock-pill up" id="mockTrend">▲ 4.6%</span></div>
+                <canvas id="mockChart"></canvas>
+              </div>
+              <div class="mock-rows" id="mockRows"></div>
+            </div>
+          </div>
+        </div>
+        <div class="mock-float mock-float-1" id="mockFloat1"></div>
+        <div class="mock-float mock-float-2" id="mockFloat2"></div>
+      </div>
+    </div>
+    <div class="hero-marquee reveal">
+      <div class="marquee-track" id="marquee"></div>
+    </div>
+  </section>
+
+  <!-- 2. EXECUTIVE KPI OVERVIEW -->
+  <section class="section" id="overview">
+    <div class="section-head">
+      <div>
+        <span class="sec-tag">01 — Executive Overview</span>
+        <h2 class="sec-title">Portfolio at a glance</h2>
+      </div>
+      <p class="sec-desc">Headline metrics across 10 properties and 24 months of operating history, refreshed straight from the Power Pivot data model.</p>
+    </div>
+    <div class="kpi-grid" id="kpiGrid"></div>
+  </section>
+
+  <!-- 3. PORTFOLIO PERFORMANCE -->
+  <section class="section" id="performance">
+    <div class="section-head">
+      <div>
+        <span class="sec-tag">02 — Portfolio Performance</span>
+        <h2 class="sec-title">Trends &amp; rankings</h2>
+      </div>
+      <p class="sec-desc">Occupancy and NOI trajectory, budget adherence, and the properties driving — or dragging — the portfolio.</p>
+    </div>
+    <div class="chart-grid">
+      <div class="card chart-card span-6">
+        <div class="card-head"><div><h3>Occupancy Trend</h3><span class="card-sub">Physical occupancy %, by month</span></div><span class="chip chip-teal">24M</span></div>
+        <div class="chart-wrap"><canvas id="occChart"></canvas></div>
+      </div>
+      <div class="card chart-card span-6">
+        <div class="card-head"><div><h3>NOI Trend</h3><span class="card-sub">Net operating income, by month</span></div><span class="chip chip-blue">$000s</span></div>
+        <div class="chart-wrap"><canvas id="noiChart"></canvas></div>
+      </div>
+      <div class="card chart-card span-12">
+        <div class="card-head"><div><h3>Revenue vs Budget</h3><span class="card-sub">Effective gross income against plan</span></div><span class="chip chip-gold">Plan</span></div>
+        <div class="chart-wrap tall"><canvas id="revChart"></canvas></div>
+      </div>
+      <div class="card chart-card span-6">
+        <div class="card-head"><div><h3>Top 5 — NOI Margin</h3><span class="card-sub">Highest-margin assets</span></div><span class="chip chip-green">Best</span></div>
+        <div class="chart-wrap"><canvas id="topChart"></canvas></div>
+      </div>
+      <div class="card chart-card span-6">
+        <div class="card-head"><div><h3>Bottom 5 — Occupancy</h3><span class="card-sub">Properties needing attention</span></div><span class="chip chip-red">Watch</span></div>
+        <div class="chart-wrap"><canvas id="botChart"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. OPERATIONAL EXCEPTIONS -->
+  <section class="section" id="exceptions">
+    <div class="section-head">
+      <div>
+        <span class="sec-tag">03 — Operational Exceptions</span>
+        <h2 class="sec-title">Risk &amp; attention register</h2>
+      </div>
+      <p class="sec-desc">Automated exception flags surface the properties and issues that need an owner decision this week.</p>
+    </div>
+    <div class="risk-summary" id="riskSummary"></div>
+    <div class="card table-card">
+      <div class="table-head-row">
+        <h3>Exception Register</h3>
+        <div class="legend" id="riskLegend">
+          <span class="lg lg-high"><i></i>High</span>
+          <span class="lg lg-med"><i></i>Medium</span>
+          <span class="lg lg-low"><i></i>Low</span>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="ex-table" id="exTable">
+          <thead>
+            <tr><th>Property</th><th>Region</th><th>Issue Type</th><th>Metric</th><th>Risk</th><th>Recommended Action</th></tr>
+          </thead>
+          <tbody id="exBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. INVESTMENT PERFORMANCE -->
+  <section class="section" id="investment">
+    <div class="section-head">
+      <div>
+        <span class="sec-tag">04 — Investment Performance</span>
+        <h2 class="sec-title">Capital &amp; returns</h2>
+      </div>
+      <p class="sec-desc">Valuation, leverage, equity and return metrics from the latest month's snapshot.</p>
+    </div>
+    <div class="kpi-grid small" id="invKpiGrid"></div>
+    <div class="chart-grid">
+      <div class="card chart-card span-6">
+        <div class="card-head"><div><h3>Property Value</h3><span class="card-sub">Estimated value by property</span></div></div>
+        <div class="chart-wrap"><canvas id="valChart"></canvas></div>
+      </div>
+      <div class="card chart-card span-6">
+        <div class="card-head"><div><h3>Equity Value</h3><span class="card-sub">Net equity by property</span></div></div>
+        <div class="chart-wrap"><canvas id="eqChart"></canvas></div>
+      </div>
+      <div class="card chart-card span-6">
+        <div class="card-head"><div><h3>DSCR Ranking</h3><span class="card-sub">Debt service coverage</span></div></div>
+        <div class="chart-wrap"><canvas id="dscrChart"></canvas></div>
+      </div>
+      <div class="card chart-card span-6">
+        <div class="card-head"><div><h3>Debt Yield Ranking</h3><span class="card-sub">NOI ÷ loan balance</span></div></div>
+        <div class="chart-wrap"><canvas id="dyChart"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. CASE STUDY (Upwork-style) -->
+  <section class="section" id="casestudy">
+    <div class="section-head">
+      <div>
+        <span class="sec-tag">05 — Case Study</span>
+        <h2 class="sec-title">From scattered exports to a single executive view</h2>
+      </div>
+      <p class="sec-desc">A consulting engagement, end to end — designed, modeled, automated, and delivered.</p>
+    </div>
+
+    <div class="case-hero card">
+      <div class="case-hero-l">
+        <span class="case-kicker">Client Engagement</span>
+        <h3>Multifamily owner-operator · 10–500 property portfolio</h3>
+        <p>Ownership needed a single, trustworthy view of performance, risk and returns — without hiring a data team or replacing their property-management system. The solution: an automated Excel-native BI platform delivered in roughly nine weeks.</p>
+        <div class="case-metrics" id="caseMetrics"></div>
+      </div>
+      <div class="case-hero-r">
+        <div class="case-quote">
+          <span class="q-mark">“</span>
+          <p>From eight disconnected monthly exports to a one-click executive dashboard the owners actually use.</p>
+          <span class="q-by">— Engagement summary</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="case-timeline" id="caseTimeline"></div>
+  </section>
+
+  <!-- 7. AUTOMATION WORKFLOW -->
+  <section class="section" id="workflow">
+    <div class="section-head">
+      <div>
+        <span class="sec-tag">06 — Automation Workflow</span>
+        <h2 class="sec-title">Hands-free data pipeline</h2>
+      </div>
+      <p class="sec-desc">Exported reports arrive by email and flow through to the executive dashboard with no manual steps.</p>
+    </div>
+    <div class="flow" id="flow"></div>
+  </section>
+
+  <!-- 8. TECHNICAL STACK -->
+  <section class="section" id="stack">
+    <div class="section-head">
+      <div>
+        <span class="sec-tag">07 — Technical Stack</span>
+        <h2 class="sec-title">Built with</h2>
+      </div>
+      <p class="sec-desc">A modern, maintainable BI stack — no servers, no licensing surprises.</p>
+    </div>
+    <div class="stack-grid" id="stackGrid"></div>
+  </section>
+
+  <!-- 9. FOOTER -->
+  <footer class="footer">
+    <div class="footer-cta card">
+      <div>
+        <h3>Need a reporting system like this?</h3>
+        <p>Executive dashboards, data models, and automated pipelines — built in Excel, Power BI, or the web.</p>
+      </div>
+      <a href="#hero" class="btn btn-primary">Back to top <span class="arr">↑</span></a>
+    </div>
+    <div class="footer-inner">
+      <div class="brand footer-brand">
+        <span class="brand-mark">◇</span>
+        <span class="brand-text">APEX<span class="brand-thin"> Portfolio</span></span>
+      </div>
+      <p class="footer-tag">Designed as a BI portfolio project</p>
+      <p class="footer-sub">Excel + Power Query + Executive Analytics</p>
+      <p class="footer-fine">Sample data for demonstration. © <span id="yr"></span> — Business Intelligence Portfolio.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>
