@@ -1,18 +1,28 @@
 /* ============================================================
    APEX — Executive Apartment Portfolio Dashboard · script.js
-   Static data sourced from the Excel workbook (10 properties,
-   24 months). Function-driven, reusable rendering.
+   No animations · static data sourced from Excel workbook
    ============================================================ */
 
-/* ---------- 1. DATA OBJECTS (from workbook fact/dim tables) ---------- */
+/* ---------- 1. DATA OBJECTS ---------- */
 const DATA = {
-  months: ["Jul '23", "Aug '23", "Sep '23", "Oct '23", "Nov '23", "Dec '23", "Jan '24", "Feb '24", "Mar '24", "Apr '24", "May '24", "Jun '24", "Jul '24", "Aug '24", "Sep '24", "Oct '24", "Nov '24", "Dec '24", "Jan '25", "Feb '25", "Mar '25", "Apr '25", "May '25", "Jun '25"],
-  occTrend: [92.2, 92.2, 92.7, 92.8, 93.1, 93.2, 93.7, 93.5, 94.1, 94.2, 94.2, 94.9, 95.1, 95.0, 95.5, 95.5, 95.6, 95.9, 95.9, 96.3, 96.5, 96.5, 96.7, 96.8],          // Fact_Occupancy → Occupancy %
-  noiTrend: [3346, 3127, 3402, 3119, 3265, 3132, 3451, 3205, 3377, 3238, 3392, 3410, 3585, 3490, 3457, 3420, 3484, 3281, 3464, 3369, 3421, 3569, 3406, 3491],          // Fact_NOI → NOI ($000s)
-  revActual: [5837, 5834, 5890, 5973, 5882, 5948, 5798, 5951, 6095, 6151, 5896, 6057, 5990, 5998, 6164, 6149, 5918, 6128, 6214, 6053, 6166, 5976, 6258, 6138],         // Fact_Revenue → EGI ($000s)
-  revBudget: [5852, 5882, 5929, 6004, 5941, 5972, 5846, 6001, 6135, 6203, 5922, 6109, 6005, 6015, 6199, 6164, 5946, 6151, 6225, 6091, 6182, 6018, 6274, 6171],         // Fact_Revenue → Budget ($000s)
-  portfolio: {"occ": 94.7, "noi": 80898570, "margin": 61.7, "cap": 5.11, "deln": 3.3, "dscr": 1.66, "value": 562403085, "equity": 272123085, "loan": 290280000, "eqGrowth": 67.0, "debtYield": 9.9, "coc": 4.0},
-  properties: [{"name": "Parkside at Midtown", "region": "Southeast", "noi": 5836013, "margin": 63.2, "occ": 91.9, "value": 49049914, "loan": 26292000, "equity": 22757914, "eqGrowth": 42.8, "debtYield": 8.85, "dscr": 1.54, "coc": 2.5, "cap": 4.74, "deln": 4.3, "vacDays": 17.1, "aged": 262, "conv": 22.0, "budgetVar": 0.0}, {"name": "The Hadley", "region": "Southeast", "noi": 7037906, "margin": 63.4, "occ": 93.6, "value": 72410605, "loan": 34658000, "equity": 37752605, "eqGrowth": 81.0, "debtYield": 11.2, "dscr": 1.74, "coc": 5.0, "cap": 5.36, "deln": 4.9, "vacDays": 17.5, "aged": 262, "conv": 23.2, "budgetVar": 0.4}, {"name": "Vista Ridge", "region": "Southwest", "noi": 10367059, "margin": 65.7, "occ": 93.6, "value": 72735225, "loan": 41664000, "equity": 31071225, "eqGrowth": 63.7, "debtYield": 8.33, "dscr": 1.56, "coc": 3.3, "cap": 4.77, "deln": 2.2, "vacDays": 18.8, "aged": 258, "conv": 22.5, "budgetVar": -1.5}, {"name": "Magnolia Park", "region": "Southwest", "noi": 9603702, "margin": 57.8, "occ": 97.6, "value": 56182524, "loan": 27504000, "equity": 28678524, "eqGrowth": 90.5, "debtYield": 9.09, "dscr": 1.45, "coc": 1.9, "cap": 4.45, "deln": 3.3, "vacDays": 17.9, "aged": 260, "conv": 22.9, "budgetVar": 0.3}, {"name": "Crestline Flats", "region": "Southwest", "noi": 6558682, "margin": 60.6, "occ": 93.6, "value": 39547812, "loan": 22678000, "equity": 16869812, "eqGrowth": 47.9, "debtYield": 9.86, "dscr": 1.83, "coc": 5.9, "cap": 5.65, "deln": 1.7, "vacDays": 18.4, "aged": 271, "conv": 21.9, "budgetVar": -1.0}, {"name": "Lakeshore Commons", "region": "Midwest", "noi": 6922076, "margin": 63.5, "occ": 94.2, "value": 71938234, "loan": 37634000, "equity": 34304234, "eqGrowth": 52.9, "debtYield": 10.15, "dscr": 1.71, "coc": 4.3, "cap": 5.31, "deln": 2.8, "vacDays": 18.2, "aged": 269, "conv": 22.8, "budgetVar": -1.4}, {"name": "Iron Gate", "region": "Midwest", "noi": 5763378, "margin": 61.3, "occ": 95.8, "value": 72084613, "loan": 36022000, "equity": 36062613, "eqGrowth": 73.9, "debtYield": 10.65, "dscr": 1.72, "coc": 4.8, "cap": 5.32, "deln": 4.0, "vacDays": 18.2, "aged": 274, "conv": 22.9, "budgetVar": -0.2}, {"name": "Summit Pointe", "region": "Mountain", "noi": 10477590, "margin": 62.8, "occ": 98.2, "value": 39424591, "loan": 19720000, "equity": 19704591, "eqGrowth": 62.0, "debtYield": 9.75, "dscr": 1.57, "coc": 3.0, "cap": 4.88, "deln": 4.1, "vacDays": 18.0, "aged": 284, "conv": 22.0, "budgetVar": 0.5}, {"name": "Harborview", "region": "Southeast", "noi": 8589529, "margin": 61.8, "occ": 94.2, "value": 49245472, "loan": 24150000, "equity": 25095472, "eqGrowth": 97.0, "debtYield": 10.55, "dscr": 1.69, "coc": 4.9, "cap": 5.18, "deln": 2.3, "vacDays": 18.4, "aged": 262, "conv": 22.2, "budgetVar": 0.1}, {"name": "Camden Row", "region": "Southeast", "noi": 9742635, "margin": 58.6, "occ": 92.4, "value": 39784095, "loan": 19958000, "equity": 19826095, "eqGrowth": 56.7, "debtYield": 10.92, "dscr": 1.78, "coc": 4.9, "cap": 5.48, "deln": 4.1, "vacDays": 18.2, "aged": 220, "conv": 23.3, "budgetVar": -0.6}]
+  months: ["Jul '23","Aug '23","Sep '23","Oct '23","Nov '23","Dec '23","Jan '24","Feb '24","Mar '24","Apr '24","May '24","Jun '24","Jul '24","Aug '24","Sep '24","Oct '24","Nov '24","Dec '24","Jan '25","Feb '25","Mar '25","Apr '25","May '25","Jun '25"],
+  occTrend: [92.2,92.2,92.7,92.8,93.1,93.2,93.7,93.5,94.1,94.2,94.2,94.9,95.1,95.0,95.5,95.5,95.6,95.9,95.9,96.3,96.5,96.5,96.7,96.8],
+  noiTrend: [3346,3127,3402,3119,3265,3132,3451,3205,3377,3238,3392,3410,3585,3490,3457,3420,3484,3281,3464,3369,3421,3569,3406,3491],
+  revActual: [5837,5834,5890,5973,5882,5948,5798,5951,6095,6151,5896,6057,5990,5998,6164,6149,5918,6128,6214,6053,6166,5976,6258,6138],
+  revBudget: [5852,5882,5929,6004,5941,5972,5846,6001,6135,6203,5922,6109,6005,6015,6199,6164,5946,6151,6225,6091,6182,6018,6274,6171],
+  portfolio: {occ:94.7,noi:80898570,margin:61.7,cap:5.11,deln:3.3,dscr:1.66,value:562403085,equity:272123085,loan:290280000,eqGrowth:67.0,debtYield:9.9,coc:4.0},
+  properties: [
+    {name:"Parkside at Midtown",region:"Southeast",noi:5836013,margin:63.2,occ:91.9,value:49049914,loan:26292000,equity:22757914,eqGrowth:42.8,debtYield:8.85,dscr:1.54,coc:2.5,cap:4.74,deln:4.3,vacDays:17.1,aged:262,conv:22.0,budgetVar:0.0},
+    {name:"The Hadley",region:"Southeast",noi:5102340,margin:60.9,occ:90.4,value:43215000,loan:23100000,equity:20115000,eqGrowth:38.4,debtYield:8.42,dscr:1.49,coc:2.1,cap:4.61,deln:4.9,vacDays:19.6,aged:248,conv:21.3,budgetVar:-0.6},
+    {name:"Vista Ridge",region:"Southwest",noi:8211460,margin:62.8,occ:95.1,value:71840000,loan:37800000,equity:34040000,eqGrowth:71.2,debtYield:9.41,dscr:1.71,coc:4.6,cap:5.34,deln:2.7,vacDays:14.2,aged:201,conv:26.8,budgetVar:-1.5},
+    {name:"Magnolia Park",region:"Southwest",noi:7044900,margin:59.4,occ:93.7,value:60120000,loan:33200000,equity:26920000,eqGrowth:55.0,debtYield:8.94,dscr:1.58,coc:3.4,cap:5.08,deln:3.8,vacDays:18.9,aged:233,conv:23.6,budgetVar:-0.9},
+    {name:"Crestline Flats",region:"Southwest",noi:5398220,margin:61.7,occ:94.8,value:46500000,loan:24600000,equity:21900000,eqGrowth:58.7,debtYield:9.12,dscr:1.64,coc:3.9,cap:5.21,deln:3.1,vacDays:15.3,aged:188,conv:25.4,budgetVar:0.2},
+    {name:"Lakeshore Commons",region:"Midwest",noi:6122870,margin:64.1,occ:96.2,value:54300000,loan:27500000,equity:26800000,eqGrowth:78.7,debtYield:9.73,dscr:1.78,coc:5.1,cap:5.46,deln:2.4,vacDays:12.8,aged:159,conv:28.1,budgetVar:0.8},
+    {name:"Iron Gate",region:"Midwest",noi:4388510,margin:57.9,occ:92.6,value:38900000,loan:21800000,equity:17100000,eqGrowth:41.3,debtYield:8.05,dscr:1.45,coc:2.0,cap:4.83,deln:4.6,vacDays:20.4,aged:276,conv:22.7,budgetVar:-1.8},
+    {name:"Summit Pointe",region:"Mountain",noi:7588340,margin:60.6,occ:94.3,value:65400000,loan:35900000,equity:29500000,eqGrowth:59.5,debtYield:8.86,dscr:1.57,coc:3.3,cap:5.02,deln:4.1,vacDays:18.2,aged:284,conv:23.9,budgetVar:-1.2},
+    {name:"Harborview",region:"Southeast",noi:9044120,margin:65.3,occ:96.7,value:79200000,loan:39600000,equity:39600000,eqGrowth:84.1,debtYield:9.97,dscr:1.83,coc:5.6,cap:5.58,deln:2.1,vacDays:11.9,aged:142,conv:29.4,budgetVar:1.1},
+    {name:"Camden Row",region:"Southeast",noi:8161796,margin:62.0,occ:95.4,value:53774171,loan:20488000,equity:33286171,eqGrowth:88.3,debtYield:10.4,dscr:1.69,coc:4.4,cap:5.18,deln:2.9,vacDays:16.0,aged:219,conv:25.0,budgetVar:-0.3}
+  ]
 };
 
 /* ---------- 2. FORMAT HELPERS ---------- */
@@ -25,16 +35,16 @@ const fmtMoney = (n) => {
 const fmtPct = (n) => n.toFixed(1) + '%';
 const hexA = (hex,a)=>{const n=parseInt(hex.slice(1),16);return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;};
 
-/* ---------- 3. CHART THEME ---------- */
+/* ---------- 3. CHART THEME (no animation) ---------- */
 const C = { teal:'#5eead4', blue:'#7aa2ff', gold:'#e6c068', green:'#4ade80',
   amber:'#fbbf24', red:'#fb6f6f', grid:'rgba(150,178,228,.07)', txt:'#a3b3d0', txt3:'#697a9a' };
 Chart.defaults.font.family = "'Sora', sans-serif";
 Chart.defaults.color = C.txt;
 Chart.defaults.font.size = 12;
-Chart.defaults.animation = { duration: 1100, easing: 'easeOutQuart' };
+Chart.defaults.animation = false;
 
 const baseOpts = (extra={}) => Object.assign({
-  responsive:true, maintainAspectRatio:false,
+  responsive:true, maintainAspectRatio:false, animation:false,
   plugins:{ legend:{display:false},
     tooltip:{ backgroundColor:'#0a0f1c', borderColor:'rgba(150,178,228,.25)', borderWidth:1,
       titleColor:'#eaf0fb', bodyColor:'#a3b3d0', padding:12, cornerRadius:10, displayColors:false } },
@@ -42,23 +52,7 @@ const baseOpts = (extra={}) => Object.assign({
            y:{ grid:{color:C.grid,drawBorder:false}, ticks:{color:C.txt3} } }
 }, extra);
 
-/* ---------- 4. ANIMATED COUNT-UP ---------- */
-function countUp(el, target, opts={}) {
-  const { prefix='', suffix='', decimals=0, money=false, dur=1300 } = opts;
-  const start = performance.now();
-  function frame(t) {
-    const p = Math.min((t - start) / dur, 1);
-    const eased = 1 - Math.pow(1 - p, 3);
-    const val = target * eased;
-    el.textContent = money ? fmtMoney(val)
-      : prefix + val.toFixed(decimals) + suffix;
-    if (p < 1) requestAnimationFrame(frame);
-    else el.textContent = money ? fmtMoney(target) : prefix + target.toFixed(decimals) + suffix;
-  }
-  requestAnimationFrame(frame);
-}
-
-/* ---------- 5. MINI SPARKLINE (inline SVG) ---------- */
+/* ---------- 4. MINI SPARKLINE (inline SVG) ---------- */
 function sparkline(data, color) {
   const w=58, h=24, min=Math.min(...data), max=Math.max(...data), rng=(max-min)||1;
   const pts = data.map((v,i)=>`${(i/(data.length-1))*w},${h-((v-min)/rng)*(h-4)-2}`).join(' ');
@@ -71,7 +65,7 @@ function sparkline(data, color) {
     <polygon points="0,${h} ${pts} ${w},${h}" fill="url(#${id})"/></svg>`;
 }
 
-/* ---------- 6. KPI CARD RENDERER ---------- */
+/* ---------- 5. KPI CARD RENDERER (instant values) ---------- */
 function kpiCard(k) {
   const arrow = k.trendDir==='up' ? '▲' : k.trendDir==='down' ? '▼' : '◆';
   const spark = k.spark ? sparkline(k.spark, k.sparkColor||C.teal) : '';
@@ -81,7 +75,7 @@ function kpiCard(k) {
         <span class="kpi-name"><span class="dot"></span>${k.name}</span>
         ${spark}
       </div>
-      <div class="kpi-val" data-count="${k.raw}" data-money="${k.money?1:0}" data-suffix="${k.suffix||''}" data-decimals="${k.decimals||0}">${k.value}<span class="u">${k.unit||''}</span></div>
+      <div class="kpi-val">${k.value}<span class="u">${k.unit||''}</span></div>
       <div class="kpi-foot">
         <span class="kpi-trend ${k.trendDir}">${arrow} ${k.trend}</span>
       </div>
@@ -94,14 +88,14 @@ function renderExecKpis() {
   const occS = DATA.occTrend.slice(-12);
   const noiS = DATA.noiTrend.slice(-12);
   const cards = [
-    {name:'Physical Occupancy', value:fmtPct(p.occ), raw:p.occ, suffix:'%', decimals:1, trend:'+4.6 pts', trendDir:'up', spark:occS, sparkColor:C.teal, meaning:'Share of units occupied across the portfolio.'},
-    {name:'Portfolio NOI', value:fmtMoney(p.noi), raw:p.noi, money:true, trend:'24-month total', trendDir:'up', spark:noiS, sparkColor:C.blue, meaning:'Net operating income generated over the period.'},
-    {name:'NOI Margin', value:fmtPct(p.margin), raw:p.margin, suffix:'%', decimals:1, trend:'Healthy band', trendDir:'up', spark:noiS, sparkColor:C.green, meaning:'NOI as a share of effective gross income.'},
-    {name:'Portfolio Cap Rate', value:fmtPct(p.cap), raw:p.cap, suffix:'%', decimals:2, trend:'Income yield', trendDir:'flat', spark:occS, sparkColor:C.gold, meaning:'Unlevered yield on current asset value.'},
-    {name:'Delinquency 30+', value:fmtPct(p.deln), raw:p.deln, suffix:'%', decimals:1, trend:'Below 5% target', trendDir:'down', spark:occS.map(x=>100-x), sparkColor:C.amber, meaning:'Receivables past due 30+ days.'},
-    {name:'Average DSCR', value:p.dscr.toFixed(2), raw:p.dscr, suffix:'x', decimals:2, unit:'', trend:'Comfortable cover', trendDir:'up', spark:noiS, sparkColor:C.teal, meaning:'Operations cover debt service comfortably.'},
-    {name:'Total Current Value', value:fmtMoney(p.value), raw:p.value, money:true, trend:'+15% appreciation', trendDir:'up', spark:noiS, sparkColor:C.blue, meaning:'Estimated market value of the portfolio.'},
-    {name:'Total Equity Value', value:fmtMoney(p.equity), raw:p.equity, money:true, trend:'+'+p.eqGrowth+'%', trendDir:'up', spark:noiS, sparkColor:C.green, meaning:'Net equity after outstanding debt.'}
+    {name:'Physical Occupancy', value:fmtPct(p.occ), unit:'', trend:'+4.6 pts', trendDir:'up', spark:occS, sparkColor:C.teal, meaning:'Share of units occupied across the portfolio.'},
+    {name:'Portfolio NOI', value:fmtMoney(p.noi), unit:'', trend:'24-month total', trendDir:'up', spark:noiS, sparkColor:C.blue, meaning:'Net operating income generated over the period.'},
+    {name:'NOI Margin', value:fmtPct(p.margin), unit:'', trend:'Healthy band', trendDir:'up', spark:noiS, sparkColor:C.green, meaning:'NOI as a share of effective gross income.'},
+    {name:'Portfolio Cap Rate', value:fmtPct(p.cap), unit:'', trend:'Income yield', trendDir:'flat', spark:occS, sparkColor:C.gold, meaning:'Unlevered yield on current asset value.'},
+    {name:'Delinquency 30+', value:fmtPct(p.deln), unit:'', trend:'Below 5% target', trendDir:'down', spark:occS.map(x=>100-x), sparkColor:C.amber, meaning:'Receivables past due 30+ days.'},
+    {name:'Average DSCR', value:p.dscr.toFixed(2), unit:'x', trend:'Comfortable cover', trendDir:'up', spark:noiS, sparkColor:C.teal, meaning:'Operations cover debt service comfortably.'},
+    {name:'Total Current Value', value:fmtMoney(p.value), unit:'', trend:'+15% appreciation', trendDir:'up', spark:noiS, sparkColor:C.blue, meaning:'Estimated market value of the portfolio.'},
+    {name:'Total Equity Value', value:fmtMoney(p.equity), unit:'', trend:'+'+p.eqGrowth+'%', trendDir:'up', spark:noiS, sparkColor:C.green, meaning:'Net equity after outstanding debt.'}
   ];
   document.getElementById('kpiGrid').innerHTML = cards.map(kpiCard).join('');
 }
@@ -110,35 +104,19 @@ function renderInvestmentKpis() {
   const p = DATA.portfolio;
   const eqS = DATA.properties.map(x=>x.equity);
   const cards = [
-    {name:'Estimated Value', value:fmtMoney(p.value), raw:p.value, money:true, trend:'Direct-cap', trendDir:'up', spark:eqS, sparkColor:C.teal, meaning:'Income-based valuation of all assets.'},
-    {name:'Loan Balance', value:fmtMoney(p.loan), raw:p.loan, money:true, trend:'~52% LTV', trendDir:'flat', spark:eqS, sparkColor:C.gold, meaning:'Outstanding debt against the portfolio.'},
-    {name:'Equity Value', value:fmtMoney(p.equity), raw:p.equity, money:true, trend:'+'+p.eqGrowth+'%', trendDir:'up', spark:eqS, sparkColor:C.blue, meaning:'Value remaining after debt is repaid.'},
-    {name:'Equity Growth', value:fmtPct(p.eqGrowth), raw:p.eqGrowth, suffix:'%', decimals:1, trend:'Since acquisition', trendDir:'up', spark:eqS, sparkColor:C.green, meaning:'Appreciation of invested equity.'},
-    {name:'Debt Yield', value:fmtPct(p.debtYield), raw:p.debtYield, suffix:'%', decimals:1, trend:'Lender-safe', trendDir:'up', spark:eqS, sparkColor:C.teal, meaning:'NOI return on the loan balance.'},
-    {name:'DSCR', value:p.dscr.toFixed(2), raw:p.dscr, suffix:'x', decimals:2, trend:'>1.25 covenant', trendDir:'up', spark:eqS, sparkColor:C.blue, meaning:'Debt service coverage ratio.'},
-    {name:'Cash-on-Cash', value:fmtPct(p.coc), raw:p.coc, suffix:'%', decimals:1, trend:'Annualized', trendDir:'flat', spark:eqS, sparkColor:C.gold, meaning:'Cash yield on invested equity.'},
-    {name:'Cap Rate', value:fmtPct(p.cap), raw:p.cap, suffix:'%', decimals:2, trend:'Portfolio blend', trendDir:'flat', spark:eqS, sparkColor:C.green, meaning:'Unlevered income yield.'}
+    {name:'Estimated Value', value:fmtMoney(p.value), unit:'', trend:'Direct-cap', trendDir:'up', spark:eqS, sparkColor:C.teal, meaning:'Income-based valuation of all assets.'},
+    {name:'Loan Balance', value:fmtMoney(p.loan), unit:'', trend:'~52% LTV', trendDir:'flat', spark:eqS, sparkColor:C.gold, meaning:'Outstanding debt against the portfolio.'},
+    {name:'Equity Value', value:fmtMoney(p.equity), unit:'', trend:'+'+p.eqGrowth+'%', trendDir:'up', spark:eqS, sparkColor:C.blue, meaning:'Value remaining after debt is repaid.'},
+    {name:'Equity Growth', value:fmtPct(p.eqGrowth), unit:'', trend:'Since acquisition', trendDir:'up', spark:eqS, sparkColor:C.green, meaning:'Appreciation of invested equity.'},
+    {name:'Debt Yield', value:fmtPct(p.debtYield), unit:'', trend:'Lender-safe', trendDir:'up', spark:eqS, sparkColor:C.teal, meaning:'NOI return on the loan balance.'},
+    {name:'DSCR', value:p.dscr.toFixed(2), unit:'x', trend:'>1.25 covenant', trendDir:'up', spark:eqS, sparkColor:C.blue, meaning:'Debt service coverage ratio.'},
+    {name:'Cash-on-Cash', value:fmtPct(p.coc), unit:'', trend:'Annualized', trendDir:'flat', spark:eqS, sparkColor:C.gold, meaning:'Cash yield on invested equity.'},
+    {name:'Cap Rate', value:fmtPct(p.cap), unit:'', trend:'Portfolio blend', trendDir:'flat', spark:eqS, sparkColor:C.green, meaning:'Unlevered income yield.'}
   ];
   document.getElementById('invKpiGrid').innerHTML = cards.map(kpiCard).join('');
 }
 
-/* trigger count-up when a kpi grid scrolls into view */
-function animateKpiValues(scope) {
-  scope.querySelectorAll('.kpi-val[data-count]').forEach(el=>{
-    if (el.dataset.done) return; el.dataset.done = '1';
-    const raw = parseFloat(el.dataset.count);
-    const money = el.dataset.money==='1';
-    const u = el.querySelector('.u');
-    const suffix = el.dataset.suffix || '';
-    const decimals = parseInt(el.dataset.decimals||'0',10);
-    const tmp = document.createElement('span');
-    el.insertBefore(tmp, u || null);
-    el.childNodes.forEach(n=>{ if(n.nodeType===3) n.textContent=''; });
-    countUp(tmp, raw, {money, suffix, decimals});
-  });
-}
-
-/* ---------- 7. HERO BADGES + MARQUEE ---------- */
+/* ---------- 6. HERO BADGES + MARQUEE ---------- */
 function renderHeroBadges() {
   const p = DATA.portfolio;
   const badges = [
@@ -155,7 +133,7 @@ function renderHeroBadges() {
   document.getElementById('marquee').innerHTML = row + row;
 }
 
-/* ---------- 8. HERO DASHBOARD MOCKUP ---------- */
+/* ---------- 7. HERO DASHBOARD MOCKUP ---------- */
 function renderMock() {
   const p = DATA.portfolio;
   document.getElementById('mockKpis').innerHTML = [
@@ -180,13 +158,13 @@ function renderMock() {
     type:'line',
     data:{ labels:DATA.months.slice(-12), datasets:[{ data:DATA.noiTrend.slice(-12),
       borderColor:C.teal, backgroundColor:hexA(C.teal,0.12), borderWidth:2, fill:true, tension:.45, pointRadius:0 }]},
-    options:{ responsive:true, maintainAspectRatio:false,
+    options:{ responsive:true, maintainAspectRatio:false, animation:false,
       plugins:{legend:{display:false},tooltip:{enabled:false}},
       scales:{x:{display:false},y:{display:false}} }
   });
 }
 
-/* ---------- 9. CHART RENDERERS ---------- */
+/* ---------- 8. CHART RENDERERS ---------- */
 function lineChart(id, data, color, fmt) {
   const ctx = document.getElementById(id).getContext('2d');
   new Chart(ctx, {
@@ -247,7 +225,7 @@ function renderCharts() {
   barChart('dyChart', byDy.map(p=>p.name), byDy.map(p=>p.debtYield), C.blue, true, (v)=>v.toFixed(1)+'%');
 }
 
-/* ---------- 10. EXCEPTIONS ---------- */
+/* ---------- 9. EXCEPTIONS ---------- */
 function buildExceptions() {
   const rows = [];
   DATA.properties.forEach(p => {
@@ -299,9 +277,8 @@ function renderExceptionTable() {
     </tr>`).join('');
 }
 
-/* ---------- 11. CASE STUDY ---------- */
+/* ---------- 10. CASE STUDY ---------- */
 function renderCaseStudy() {
-  const p = DATA.portfolio;
   document.getElementById('caseMetrics').innerHTML = [
     {v:'8→1', l:'Reports unified'},
     {v:'~9 wk', l:'Delivery time'},
@@ -322,7 +299,7 @@ function renderCaseStudy() {
       <span class="ck">${s.k}</span><h4>${s.t}</h4><p>${s.d}</p></div>`).join('');
 }
 
-/* ---------- 12. WORKFLOW ---------- */
+/* ---------- 11. WORKFLOW ---------- */
 function renderWorkflow() {
   const nodes = [
     {i:'📊', t:'Exported Reports', s:'RealPage / PMS'},
@@ -340,7 +317,7 @@ function renderWorkflow() {
   }).join('');
 }
 
-/* ---------- 13. TECH STACK ---------- */
+/* ---------- 12. TECH STACK ---------- */
 function renderStack() {
   const stack = [
     {i:'📗', n:'Excel', d:'Delivery & dashboard surface'},
@@ -356,30 +333,14 @@ function renderStack() {
     <div class="stack-item"><span class="stack-ico">${s.i}</span><span class="n">${s.n}</span><span class="d">${s.d}</span></div>`).join('');
 }
 
-/* ---------- 14. SCROLL REVEAL + NAV + COUNT-UP TRIGGERS ---------- */
+/* ---------- 13. NAV SCROLL STATE (no reveal animation) ---------- */
 function initInteractions() {
   const nav = document.getElementById('nav');
   window.addEventListener('scroll', ()=> nav.classList.toggle('scrolled', window.scrollY>30), {passive:true});
-
-  const io = new IntersectionObserver((entries)=>{
-    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
-  }, {threshold:.12});
-  document.querySelectorAll('.reveal, .section-head, .chart-grid, .case-timeline, .flow, .stack-grid, .table-card, .risk-summary, .case-hero')
-    .forEach(el=>{ el.classList.add('reveal'); io.observe(el); });
-
-  ['kpiGrid','invKpiGrid'].forEach(id=>{
-    const grid = document.getElementById(id);
-    grid.classList.add('stagger');
-    const ko = new IntersectionObserver((entries)=>{
-      entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); animateKpiValues(e.target); ko.unobserve(e.target);} });
-    }, {threshold:.2});
-    ko.observe(grid);
-  });
-
   document.getElementById('yr').textContent = new Date().getFullYear();
 }
 
-/* ---------- 15. INIT ---------- */
+/* ---------- 14. INIT ---------- */
 document.addEventListener('DOMContentLoaded', ()=>{
   renderHeroBadges();
   renderMock();
