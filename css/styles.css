@@ -84,10 +84,10 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--txt);line-hei
 .mock-window{border-radius:16px;overflow:hidden;border:1px solid var(--stroke-strong);background:linear-gradient(160deg,rgba(16,24,42,.96),rgba(10,16,30,.96));
   box-shadow:var(--shadow)}
 .mock-bar{display:flex;align-items:center;gap:7px;padding:11px 14px;background:rgba(8,12,22,.9);border-bottom:1px solid var(--stroke)}
-.mock-dot{width:10px;height:10px;border-radius:50%}.mock-dot.r{background:#fb6f6f}.mock-dot.y{background:#fbbf24}.mock-dot.g{background:#4ade80}
-.mock-url{font-family:var(--font-mono);font-size:.7rem;color:var(--txt-3);margin-left:10px}
-.mock-live{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:.66rem;color:var(--green)}
-.mock-live i{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.mock-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}.mock-dot.r{background:#fb6f6f}.mock-dot.y{background:#fbbf24}.mock-dot.g{background:#4ade80}
+.mock-url{font-family:var(--font-mono);font-size:.7rem;color:var(--txt-3);margin-left:10px;line-height:1}
+.mock-live{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:.66rem;color:var(--green);line-height:1;flex-shrink:0}
+.mock-live i{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
 .mock-body{display:flex;min-height:340px}
 .mock-side{width:46px;background:rgba(8,12,22,.6);border-right:1px solid var(--stroke);display:flex;flex-direction:column;align-items:center;gap:16px;padding:16px 0}
 .mock-logo{color:var(--accent);font-size:1rem}
